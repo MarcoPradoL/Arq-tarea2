@@ -1,24 +1,21 @@
 /******************************************************************************************************************
-* File:HumiditySensor.java
-* Course: 17655
-* Project: Assignment A3
-* Copyright: Copyright (c) 2009 Carnegie Mellon University
+* File:DoorSensor.java
+* Course: Arquitectura de Software
+* Project: Tarea 2
+* Copyright: Copyright (c) 2013 Cimat A.C.
 * Versions:
-*	1.0 March 2009 - Initial rewrite of original assignment 3 (ajl).
+*	1.0 Mayo 2013 - 
 *
 * Description:
-*
-* This class simulates a humidity sensor. It polls the event manager for events corresponding to changes in state
-* of the humidifier or dehumidifier and reacts to them by trending the relative humidity up or down. The current
-* relative humidity is posted to the event manager.
-*
-* Parameters: IP address of the event manager (on command line). If blank, it is assumed that the event manager is
-* on the local machine.
+* Esta clase simula un sensor de una Puerta. escanea el event manager por eventos que cambien el estado de 
+* la alarma, podra prender la alarma si esta esta apagada, para simular una Puerta rota. El actual estado es 
+* posteado en el event manager
+* 
+* Parameters: dirreccion IP del event mnager (on    command line). si esta en blanco, asuminos que el event manager
+* esta el la maquina local 
 *
 * Internal Methods:
-*	float GetRandomNumber()
-*	boolean CoinToss()
-*   void PostHumidity(EventManagerInterface ei, float humidity )
+*   void PostDoorState(EventManagerInterface ei, boolean state )
 *
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
@@ -36,12 +33,7 @@ class DoorSensor
 		int EvtId = 0;						// User specified event ID
 		EventManagerInterface em = null;	// Interface object to the event manager
 		boolean doorState = false;			// estado del sensor de puerta
-		/*boolean HumidifierState = false;	// Humidifier state: false == off, true == on
-		boolean DehumidifierState = false;	// Dehumidifier state: false == off, true == on
-		float RelativeHumidity;				// Current simulated ambient room humidity
-		float DriftValue;					// The amount of humidity gained or lost
-		*/
-		int	Delay = 10000;					// The loop delay (2.5 seconds)
+		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
 
 
@@ -126,22 +118,8 @@ class DoorSensor
 			} // catch
 
 			mw.WriteMessage("\nInitializing Door Simulation::" );
-			/*
-			RelativeHumidity = GetRandomNumber() * (float) 100.00;
-
-			if ( CoinToss() )
-			{
-				DriftValue = GetRandomNumber() * (float) -1.0;
-
-			} else {
-
-				DriftValue = GetRandomNumber();
-
-			} // if
-			*/
 			mw.WriteMessage("   Initial Door state Set:: " + doorState );
-			//mw.WriteMessage("   Drift Value Set:: " + DriftValue );
-
+			
 			/********************************************************************
 			** Here we start the main simulation loop
 			*********************************************************************/
@@ -151,7 +129,7 @@ class DoorSensor
 
 			while ( !Done )
 			{
-				// posteamos el estado altual del sensor de puerta
+				// posteamos el estado actual del sensor de puerta
 
 				PostDoorState( em, doorState );
 
@@ -178,41 +156,35 @@ class DoorSensor
 				// so the assumption is that there should only be a message at most.
 				// If there are more, it is the last message that will effect the
 				// output of the humidity as it would in reality.
+				
+				/*
+				 * Si hay mensajes en la cola, los leemos
+				 * observamos si hay Eventos con ID = - 6 esto significa que la alarma 
+				 * de pueta a sido encendida/apagada.
+				 */
 
 				int qlen = eq.GetSize();
 
 				for ( int i = 0; i < qlen; i++ )
 				{
 					Evt = eq.GetEvent();
-					/*
-					if ( Evt.GetEventId() == -4 )
+					
+					if ( Evt.GetEventId() == -6 )
 					{
-						if (Evt.GetMessage().equalsIgnoreCase("H1")) // humidifier on
+						if (Evt.GetMessage().equalsIgnoreCase("D1")) // Alarm on
 						{
-							HumidifierState = true;
+							doorState = true;
 
 						} // if
 
-						if (Evt.GetMessage().equalsIgnoreCase("H0")) // humidifier off
+						if (Evt.GetMessage().equalsIgnoreCase("D0")) // Alarm off
 						{
-							HumidifierState = false;
-
-						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("D1")) // dehumidifier on
-						{
-							DehumidifierState = true;
-
-						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("D0")) // dehumidifier off
-						{
-							DehumidifierState = false;
+							doorState = false;
 
 						} // if
 
 					} // if
-					*/
+					
 					// If the event ID == 100 then this is a signal that the simulation
 					// is to end. At this point, the loop termination flag is set to
 					// true and this process unregisters from the event manager.
@@ -239,35 +211,15 @@ class DoorSensor
 
 				} // for
 
-				// Now we trend the relative humidity according to the status of the
-				// humidifier/dehumidifier controller.
 				/*
-				if (HumidifierState)
-				{
-					RelativeHumidity += GetRandomNumber();
-
-				} // if humidifier is on
-
-				if (!HumidifierState && !DehumidifierState)
-				{
-					RelativeHumidity += DriftValue;
-
-				} // if both the humidifier and dehumidifier are off
-
-				if (DehumidifierState)
-				{
-					RelativeHumidity -= GetRandomNumber();
-
-				} // if dehumidifier is on
-				*/
-				// Here we wait for a 2.5 seconds before we start the next sample
-				if (doorState) {
-					doorState = false;
-				}else {
+				 * Ahora verificamos si el estado de la puerta es falso (OK) y lo cambiamos
+				 * a estado true (BROKEN), para simular que una puerta esta rota.
+				 */
+				
+				if (!doorState) {
 					doorState = true;
 				}
-				
-
+				// Here we wait for a 2.5 seconds before we start the next sample
 				try
 				{
 					Thread.sleep( Delay );
@@ -290,56 +242,7 @@ class DoorSensor
 
 	} // main
 
-	/***************************************************************************
-	* CONCRETE METHOD:: GetRandomNumber
-	* Purpose: This method provides the simulation with random floating point
-	*		   humidity values between 0.1 and 0.9.
-	*
-	* Arguments: None.
-	*
-	* Returns: float
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	static private float GetRandomNumber()
-	{
-		Random r = new Random();
-		Float Val;
-
-		Val = Float.valueOf((float)-1.0);
-
-		while( Val < 0.1 )
-		{
-			Val = r.nextFloat();
-	 	}
-
-		return( Val.floatValue() );
-
-	} // GetRandomNumber
-
-	/***************************************************************************
-	* CONCRETE METHOD:: CoinToss
-	* Purpose: This method provides a random true or false value used for
-	* determining the positiveness or negativeness of the drift value.
-	*
-	* Arguments: None.
-	*
-	* Returns: boolean
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	static private boolean CoinToss()
-	{
-		Random r = new Random();
-
-		return(r.nextBoolean());
-
-	} // CoinToss
-
+	
 	/***************************************************************************
 	* CONCRETE METHOD:: PostHumidity
 	* Purpose: This method posts the specified relative humidity value to the
@@ -367,7 +270,6 @@ class DoorSensor
 		try
 		{
 			ei.SendEvent( evt );
-			//mw.WriteMessage( "Sent Humidity Event" );
 
 		} // try
 
@@ -377,6 +279,6 @@ class DoorSensor
 
 		} // catch
 
-	} // PostHumidity
+	} // PostDoorState
 
-} // Humidity Sensor
+} // Door Sensor

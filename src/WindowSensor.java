@@ -1,24 +1,21 @@
 /******************************************************************************************************************
-* File:HumiditySensor.java
-* Course: 17655
-* Project: Assignment A3
-* Copyright: Copyright (c) 2009 Carnegie Mellon University
+* File:WindowSensor.java
+* Course: Arquitectura de Software
+* Project: Tarea 2
+* Copyright: Copyright (c) 2013 Cimat A.C.
 * Versions:
-*	1.0 March 2009 - Initial rewrite of original assignment 3 (ajl).
+*	1.0 Mayo 2013 - 
 *
 * Description:
-*
-* This class simulates a humidity sensor. It polls the event manager for events corresponding to changes in state
-* of the humidifier or dehumidifier and reacts to them by trending the relative humidity up or down. The current
-* relative humidity is posted to the event manager.
-*
-* Parameters: IP address of the event manager (on command line). If blank, it is assumed that the event manager is
-* on the local machine.
+* Esta clase simula un sensor de una ventana. escanea el event manager por eventos que cambien el estado de 
+* la alarma, podra prender la alarma si esta esta apagada, para simular una ventana rota. El actual estado es 
+* posteado en el event manager
+* 
+* Parameters: dirreccion IP del event mnager (on    command line). si esta en blanco, asuminos que el event manager
+* esta el la maquina local 
 *
 * Internal Methods:
-*	float GetRandomNumber()
-*	boolean CoinToss()
-*   void PostHumidity(EventManagerInterface ei, float humidity )
+*   void PostWindowState(EventManagerInterface ei, boolean state )
 *
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
@@ -36,12 +33,7 @@ class WindowSensor
 		int EvtId = 0;						// User specified event ID
 		EventManagerInterface em = null;	// Interface object to the event manager
 		boolean windowState = false;			// estado del sensor de ventana
-		/*boolean HumidifierState = false;	// Humidifier state: false == off, true == on
-		boolean DehumidifierState = false;	// Dehumidifier state: false == off, true == on
-		float RelativeHumidity;				// Current simulated ambient room humidity
-		float DriftValue;					// The amount of humidity gained or lost
-		*/
-		int	Delay = 15000;					// The loop delay (2.5 seconds)
+		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
 
 
@@ -126,21 +118,7 @@ class WindowSensor
 			} // catch
 
 			mw.WriteMessage("\nInitializing Window Simulation::" );
-			/*
-			RelativeHumidity = GetRandomNumber() * (float) 100.00;
-
-			if ( CoinToss() )
-			{
-				DriftValue = GetRandomNumber() * (float) -1.0;
-
-			} else {
-
-				DriftValue = GetRandomNumber();
-
-			} // if
-			*/
 			mw.WriteMessage("   Initial Window state Set:: " + windowState );
-			//mw.WriteMessage("   Drift Value Set:: " + DriftValue );
 
 			/********************************************************************
 			** Here we start the main simulation loop
@@ -151,7 +129,7 @@ class WindowSensor
 
 			while ( !Done )
 			{
-				// posteamos el estado altual del sensor de ventana
+				// colocamos el estado actual del sensor de ventana
 
 				PostWindowState( em, windowState );
 
@@ -178,41 +156,35 @@ class WindowSensor
 				// so the assumption is that there should only be a message at most.
 				// If there are more, it is the last message that will effect the
 				// output of the humidity as it would in reality.
+				
+				
+				/*
+				 * Si hay mensajes en la cola, los leemos
+				 * observamos si hay Eventos con ID = - 7 esto significa que la alarma 
+				 * de ventana a sido encendida/apagada.
+				 */
 
 				int qlen = eq.GetSize();
 
 				for ( int i = 0; i < qlen; i++ )
 				{
 					Evt = eq.GetEvent();
-					/*
-					if ( Evt.GetEventId() == -4 )
+					
+					if ( Evt.GetEventId() == -7 )
 					{
-						if (Evt.GetMessage().equalsIgnoreCase("H1")) // humidifier on
+						if (Evt.GetMessage().equalsIgnoreCase("W1")) // Alarm on
 						{
-							HumidifierState = true;
+							windowState = true;
 
 						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("H0")) // humidifier off
+						
+						if (Evt.GetMessage().equalsIgnoreCase("W0")) // Alarm off
 						{
-							HumidifierState = false;
+							windowState = false;
 
 						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("D1")) // dehumidifier on
-						{
-							DehumidifierState = true;
-
-						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("D0")) // dehumidifier off
-						{
-							DehumidifierState = false;
-
-						} // if
-
 					} // if
-					*/
+					
 					// If the event ID == 100 then this is a signal that the simulation
 					// is to end. At this point, the loop termination flag is set to
 					// true and this process unregisters from the event manager.
@@ -242,32 +214,14 @@ class WindowSensor
 				// Now we trend the relative humidity according to the status of the
 				// humidifier/dehumidifier controller.
 				/*
-				if (HumidifierState)
-				{
-					RelativeHumidity += GetRandomNumber();
-
-				} // if humidifier is on
-
-				if (!HumidifierState && !DehumidifierState)
-				{
-					RelativeHumidity += DriftValue;
-
-				} // if both the humidifier and dehumidifier are off
-
-				if (DehumidifierState)
-				{
-					RelativeHumidity -= GetRandomNumber();
-
-				} // if dehumidifier is on
-				*/
-				// Here we wait for a 2.5 seconds before we start the next sample
-				if (windowState) {
-					windowState = false;
-				}else {
+				 * Ahora verificamos si el estado de la ventana es falso (OK) y lo cambiamos
+				 * a estado true (BROKEN), para simular que una ventana esta rota.
+				 */
+				
+				if (!windowState) {
 					windowState = true;
 				}
-				
-
+				// Here we wait for a 2.5 seconds before we start the next sample
 				try
 				{
 					Thread.sleep( Delay );
@@ -291,64 +245,14 @@ class WindowSensor
 	} // main
 
 	/***************************************************************************
-	* CONCRETE METHOD:: GetRandomNumber
-	* Purpose: This method provides the simulation with random floating point
-	*		   humidity values between 0.1 and 0.9.
+	* CONCRETE METHOD:: PostWindowState
+	* Purpose: Este metodo manda el estado de la ventana para al Event manager
+	* Este metodo asume que el ID del evento es 7 This method assumes an event ID of 2.
 	*
-	* Arguments: None.
-	*
-	* Returns: float
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	static private float GetRandomNumber()
-	{
-		Random r = new Random();
-		Float Val;
-
-		Val = Float.valueOf((float)-1.0);
-
-		while( Val < 0.1 )
-		{
-			Val = r.nextFloat();
-	 	}
-
-		return( Val.floatValue() );
-
-	} // GetRandomNumber
-
-	/***************************************************************************
-	* CONCRETE METHOD:: CoinToss
-	* Purpose: This method provides a random true or false value used for
-	* determining the positiveness or negativeness of the drift value.
-	*
-	* Arguments: None.
-	*
-	* Returns: boolean
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-
-	static private boolean CoinToss()
-	{
-		Random r = new Random();
-
-		return(r.nextBoolean());
-
-	} // CoinToss
-
-	/***************************************************************************
-	* CONCRETE METHOD:: PostHumidity
-	* Purpose: This method posts the specified relative humidity value to the
-	* specified event manager. This method assumes an event ID of 2.
-	*
-	* Arguments: EventManagerInterface ei - this is the eventmanger interface
+	* Arguments: EventManagerInterface ei - this is the event manger interface
 	*			 where the event will be posted.
 	*
-	*			 float humidity - this is the humidity value.
+	*			 boolean state - es el estado de la ventana.
 	*
 	* Returns: none
 	*
@@ -367,7 +271,6 @@ class WindowSensor
 		try
 		{
 			ei.SendEvent( evt );
-			//mw.WriteMessage( "Sent Humidity Event" );
 
 		} // try
 
@@ -377,6 +280,6 @@ class WindowSensor
 
 		} // catch
 
-	} // PostHumidity
+	} // PostWindowState
 
-} // Humidity Sensor
+} // Window Sensor

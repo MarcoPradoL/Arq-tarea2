@@ -41,13 +41,9 @@ class SecurityController
 		EventQueue eq = null;				// Message Queue
 		int EvtId = 0;						// User specified event ID
 		EventManagerInterface em = null;	// Interface object to the event manager
-		boolean puertaRota = false;				// Estos parametros se utilizaran para mostrar
-		boolean ventanaRota = false;			// si existe alguna alerta de seguridad  
-		boolean movimiento = false;				//									
-		
-		boolean HumidifierState = false;	// Heater state: false == off, true == on
-		boolean DehumidifierState = false;	// Dehumidifier state: false == off, true == on
-		
+		boolean puertaRota = false;			// Estos parametros se utilizaran para permitir apagar 
+		boolean ventanaRota = false;		// las alarmas de seguridad 
+		boolean movimiento = false;			//									
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
 
@@ -118,11 +114,11 @@ class SecurityController
 			
 			MessageWindow mw = new MessageWindow("Security Controller Status Console", WinPosX, WinPosY);
 
-			// Now we put the indicators directly under the humitity status and control panel
+			/*// Now we put the indicators directly under the humitity status and control panel
 						
 			Indicator hi = new Indicator ("Humid OFF", mw.GetX(), mw.GetY()+mw.Height());
 			Indicator di = new Indicator ("DeHumid OFF", mw.GetX()+(hi.Width()*2), mw.GetY()+mw.Height());
-
+			*/
 			mw.WriteMessage("Registered with the event manager." );
 
 	    	try
@@ -170,34 +166,12 @@ class SecurityController
 				{
 					Evt = eq.GetEvent();
 
-					if ( Evt.GetEventId() == 4 )
+					if ( Evt.GetEventId() == 6 )	//door event
 					{
-						if (Evt.GetMessage().equalsIgnoreCase("H1")) // humidifier on
+						if (Evt.GetMessage().equalsIgnoreCase("D1")) // alarm on
 						{
-							HumidifierState = true;
-							mw.WriteMessage("Received humidifier on event" );
-
-							// Confirm that the message was recieved and acted on
-
-							ConfirmMessage( em, "H1" );
-
-						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("H0")) // humidifier off
-						{
-							HumidifierState = false;
-							mw.WriteMessage("Received humidifier off event" );
-
-							// Confirm that the message was recieved and acted on
-
-							ConfirmMessage( em, "H0" );
-
-						} // if
-
-						if (Evt.GetMessage().equalsIgnoreCase("D1")) // dehumidifier on
-						{
-							DehumidifierState = true;
-							mw.WriteMessage("Received dehumidifier on event" );
+							puertaRota = true;
+							mw.WriteMessage("Received Door broken event" );
 
 							// Confirm that the message was recieved and acted on
 
@@ -205,10 +179,10 @@ class SecurityController
 
 						} // if
 
-						if (Evt.GetMessage().equalsIgnoreCase("D0")) // dehumidifier off
+						if (Evt.GetMessage().equalsIgnoreCase("D0")) // alarm off
 						{
-							DehumidifierState = false;
-							mw.WriteMessage("Received dehumidifier off event" );
+							puertaRota = false;
+							mw.WriteMessage("Received Door ok event" );
 
 							// Confirm that the message was recieved and acted on
 
@@ -217,12 +191,64 @@ class SecurityController
 						} // if
 
 					} // if
+					
+					if ( Evt.GetEventId() == 7 )	//window event
+					{
+						if (Evt.GetMessage().equalsIgnoreCase("W1")) // alarm on
+						{
+							ventanaRota = true;
+							mw.WriteMessage("Received Window broken event" );
 
-					// If the event ID == 99 then this is a signal that the simulation
+							// Confirm that the message was recieved and acted on
+
+							ConfirmMessage( em, "W1" );
+
+						} // if
+
+						if (Evt.GetMessage().equalsIgnoreCase("W0")) // alarm off
+						{
+							ventanaRota = false;
+							mw.WriteMessage("Received Window ok event" );
+
+							// Confirm that the message was recieved and acted on
+
+							ConfirmMessage( em, "W0" );
+
+						} // if
+
+					} // if
+					
+					if ( Evt.GetEventId() == 8 )	//Motion event
+					{
+						if (Evt.GetMessage().equalsIgnoreCase("M1")) // alarm on
+						{
+							movimiento = true;
+							mw.WriteMessage("Received Motion detected event" );
+
+							// Confirm that the message was recieved and acted on
+
+							ConfirmMessage( em, "M1" );
+
+						} // if
+
+						if (Evt.GetMessage().equalsIgnoreCase("M0")) // alarm off
+						{
+							movimiento = false;
+							mw.WriteMessage("Received Motion ok event" );
+
+							// Confirm that the message was recieved and acted on
+
+							ConfirmMessage( em, "M0" );
+
+						} // if
+
+					} // if
+
+					// If the event ID == 100 then this is a signal that the simulation
 					// is to end. At this point, the loop termination flag is set to
 					// true and this process unregisters from the event manager.
 
-					if ( Evt.GetEventId() == 99 )
+					if ( Evt.GetEventId() == 100 )
 					{
 						Done = true;
 
@@ -240,45 +266,11 @@ class SecurityController
 
 				    	mw.WriteMessage( "\n\nSimulation Stopped. \n");
 
-						// Get rid of the indicators. The message panel is left for the
-						// user to exit so they can see the last message posted.
-
-						hi.dispose();
-						di.dispose();
-
 					} // if
 
 				} // for
 
-				// Update the lamp status
-
-				if (HumidifierState)
-				{
-					// Set to green, humidifier is on
-
-					hi.SetLampColorAndMessage("HUMID ON", 1);
-
-				} else {
-
-					// Set to black, humidifier is off
-					hi.SetLampColorAndMessage("HUMID OFF", 0);
-
-				} // if
-
-				if (DehumidifierState)
-				{
-					// Set to green, dehumidifier is on
-
-					di.SetLampColorAndMessage("DEHUMID ON", 1);
-
-				} else {
-
-					// Set to black, dehumidifier is off
-
-					di.SetLampColorAndMessage("DEHUMID OFF", 0);
-
-				} // if
-
+				
 				try
 				{
 					Thread.sleep( Delay );
