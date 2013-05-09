@@ -16,3 +16,34 @@ Codigos de Accion:
 "zzz" si id=8 entonces la cadena de texto "zzz" contiene el valor, en texto de false o true de  deteccion de movimiento
 
 los eventos con ID 100 terminban la ejecucion.
+
+
+Door Sensor: 
+Envia eventos ID 6
+responde a eventos ID -9 0 100
+Codigos de accion 
+"D1" Confirmacion de encendido de alarma de la puerta
+"D0" Confirmacion de apagado de alarma de la puerta
+
+Windows Sensor: 
+Envia eventos ID 7
+responde a eventos ID -10 0 100
+Codigos de accion 
+"W1" Confirmacion de encendido de alarma de la ventana
+"W0" Confirmacion de apagado de alarma de la ventana
+
+Windows Sensor: 
+Envia eventos ID 8
+responde a eventos ID -11 0 100
+Codigos de accion 
+"M1" Confirmacion de encendido de alarma del detector de movimiento
+"M0" Confirmacion de apagado de alarma del detector de movimiento
+
+Security Controller: 
+Envia eventos ID -9, -10, -11
+responde a eventos ID 9, 10, 11
+
+Monior de seguridad:
+Envia eventos ID 9, 10, 11
+responde a eventos ID 6, 7, 8
+
