@@ -33,8 +33,11 @@ class WindowSensor
 		int EvtId = 0;						// User specified event ID
 		EventManagerInterface em = null;	// Interface object to the event manager
 		boolean windowState = false;			// estado del sensor de ventana
+		boolean eventStatus = false;		// determinar si hay algun evento  
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
+		int max = 15000;					// maximo  tiempo que duerme el hilo 
+		int min = 2501;						// minimo tiempo que duerme el hilo
 
 
 		
@@ -170,17 +173,19 @@ class WindowSensor
 				{
 					Evt = eq.GetEvent();
 					
-					if ( Evt.GetEventId() == -7 )
+					if ( Evt.GetEventId() == -10 )
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("W1")) // Alarm on
 						{
 							windowState = true;
+							eventStatus = true;
 
 						} // if
 						
 						if (Evt.GetMessage().equalsIgnoreCase("W0")) // Alarm off
 						{
 							windowState = false;
+							eventStatus = true;
 
 						} // if
 					} // if
@@ -218,9 +223,10 @@ class WindowSensor
 				 * a estado true (BROKEN), para simular que una ventana esta rota.
 				 */
 				
-				if (!windowState) {
+				if (!windowState && !eventStatus) {
 					windowState = true;
-				}
+				}				
+
 				// Here we wait for a 2.5 seconds before we start the next sample
 				try
 				{
@@ -228,11 +234,22 @@ class WindowSensor
 
 				} // try
 
+				
 				catch( Exception e )
 				{
 					mw.WriteMessage("Sleep error:: " + e );
 
 				} // catch
+				
+				// aqui se determina si hay algun evento para crea
+				// el tiempo que dormira el hilo aleatoreamente
+				
+				if (!eventStatus) {
+					Delay = 2500;
+				}else {
+					Delay = (int)(Math.random()*(max-min))+min;			
+					eventStatus = false;
+				}
 
 			} // while
 

@@ -33,8 +33,11 @@ class DoorSensor
 		int EvtId = 0;						// User specified event ID
 		EventManagerInterface em = null;	// Interface object to the event manager
 		boolean doorState = false;			// estado del sensor de puerta
+		boolean eventStatus = false;		// determinar si hay algun evento  
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
+		int max = 15000;					// maximo  tiempo que duerme el hilo 
+		int min = 2501;						// minimo tiempo que duerme el hilo
 
 
 		
@@ -169,17 +172,19 @@ class DoorSensor
 				{
 					Evt = eq.GetEvent();
 					
-					if ( Evt.GetEventId() == -6 )
+					if ( Evt.GetEventId() == -9 )
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("D1")) // Alarm on
 						{
 							doorState = true;
+							eventStatus = true;
 
 						} // if
 
 						if (Evt.GetMessage().equalsIgnoreCase("D0")) // Alarm off
 						{
 							doorState = false;
+							eventStatus = true;
 
 						} // if
 
@@ -216,13 +221,16 @@ class DoorSensor
 				 * a estado true (BROKEN), para simular que una puerta esta rota.
 				 */
 				
-				if (!doorState) {
+				if (!doorState && !eventStatus) {
 					doorState = true;
 				}
+
 				// Here we wait for a 2.5 seconds before we start the next sample
 				try
 				{
+					
 					Thread.sleep( Delay );
+					
 
 				} // try
 
@@ -231,6 +239,16 @@ class DoorSensor
 					mw.WriteMessage("Sleep error:: " + e );
 
 				} // catch
+				
+				// aqui se determina si hay algun evento para crea
+				// el tiempo que dormira el hilo aleatoreamente
+				
+				if (!eventStatus) {
+					Delay = 2500;
+				}else {
+					Delay = (int)(Math.random()*(max-min))+min;			
+					eventStatus = false;
+				}
 
 			} // while
 

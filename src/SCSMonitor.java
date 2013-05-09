@@ -31,23 +31,12 @@ class SCSMonitor extends Thread
 {
 	private EventManagerInterface em = null;// Interface object to the event manager
 	private String EvtMgrIP = null;			// Event Manager IP address
-	boolean puertaRota = false;				// Estos parametros se utilizaran para mostrar
-	boolean ventanaRota = false;			// si existe alguna alerta de seguridad  
-	boolean movimiento = false;				//									
-	/*private float TempRangeHigh = 100;	// These parameters signify the temperature and humidity ranges in terms
-	private float TempRangeLow = 0;			// of high value and low values. The ECSmonitor will attempt to maintain
-	private float HumiRangeHigh = 100;		// this temperature and humidity. Temperatures are in degrees Fahrenheit
-	private float HumiRangeLow = 0;			// and humidity is in relative humidity percentage.
-	*/
 	boolean Registered = true;				// Signifies that this class is registered with an event manager.
 	boolean systemStatus = true;	// indica si el sistema esta habilitado.
 	MessageWindow mw = null;				// This is the message window
 	Indicator	pri;						// Indicador de Puerta rota
 	Indicator	vri;						// Indicador de Ventana rota
 	Indicator	dmi;						// indicador de Deteccion de movimiento
-	/*Indicator ti;							// Temperature indicator
-	Indicator hi;							// Humidity indicator
-	*/
 
 	public SCSMonitor()
 	{
@@ -102,13 +91,8 @@ class SCSMonitor extends Thread
 		boolean statusPuertaRota = false;	// actual estado del sensor de Puertas rotas.
 		boolean statusVentanaRota = false; 	// actual estado del sensor de ventanas rotas
 		boolean statusMovimiento = false; 	// actual estado del sensor de Deteccion de movimiento 
-		/*float CurrentTemperature = 0;	// Current temperature as reported by the temperature sensor
-		float CurrentHumidity= 0;		// Current relative humidity as reported by the humidity sensor
-		*/
 		int	Delay = 1000;				// The loop delay (1 second)
 		boolean Done = false;			// Loop termination flag
-		//boolean ON = true;				// Used to turn on heaters, chillers, humidifiers, and dehumidifiers
-		//boolean OFF = false;			// Used to turn off heaters, chillers, humidifiers, and dehumidifiers
 
 		if (em != null)
 		{
@@ -286,57 +270,6 @@ class SCSMonitor extends Thread
 					dmi.SetLampColorAndMessage("MOTION UNK", 0);
 				}
 				
-				// Check temperature and effect control as necessary
-				/*
-				if (CurrentTemperature < TempRangeLow) // temperature is below threshhold
-				{
-					ti.SetLampColorAndMessage("TEMP LOW", 3);
-					Heater(ON);
-					Chiller(OFF);
-
-				} else {
-
-					if (CurrentTemperature > TempRangeHigh) // temperature is above threshhold
-					{
-						ti.SetLampColorAndMessage("TEMP HIGH", 3);
-						Heater(OFF);
-						Chiller(ON);
-
-					} else {
-
-						ti.SetLampColorAndMessage("TEMP OK", 1); // temperature is within threshhold
-						Heater(OFF);
-						Chiller(OFF);
-
-					} // if
-				} // if
-
-				// Check humidity and effect control as necessary
-
-				if (CurrentHumidity < HumiRangeLow)
-				{
-					hi.SetLampColorAndMessage("HUMI LOW", 3); // humidity is below threshhold
-					Humidifier(ON);
-					Dehumidifier(OFF);
-
-				} else {
-
-					if (CurrentHumidity > HumiRangeHigh) // humidity is above threshhold
-					{
-						hi.SetLampColorAndMessage("HUMI HIGH", 3);
-						Humidifier(OFF);
-						Dehumidifier(ON);
-
-					} else {
-
-						hi.SetLampColorAndMessage("HUMI OK", 1); // humidity is within threshhold
-						Humidifier(OFF);
-						Dehumidifier(OFF);
-
-					} // if
-
-				} // if
-				 */
 				// This delay slows down the sample rate to Delay milliseconds
 
 				try
@@ -377,50 +310,9 @@ class SCSMonitor extends Thread
 	{
 		return( Registered );
 
-	} // SetTemperatureRange
+	} 
 
-	/***************************************************************************
-	* CONCRETE METHOD:: SetTemperatureRange
-	* Purpose: This method sets the temperature range
-	*
-	* Arguments: float lowtemp - low temperature range
-	*			 float hightemp - high temperature range
-	*
-	* Returns: none
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-	/*
-	public void SetTemperatureRange(float lowtemp, float hightemp )
-	{
-		TempRangeHigh = hightemp;
-		TempRangeLow = lowtemp;
-		mw.WriteMessage( "***Temperature range changed to::" + TempRangeLow + "F - " + TempRangeHigh +"F***" );
-
-	} // SetTemperatureRange
-	*/
-	/***************************************************************************
-	* CONCRETE METHOD:: SetHumidityRange
-	* Purpose: This method sets the humidity range
-	*
-	* Arguments: float lowhimi - low humidity range
-	*			 float highhumi - high humidity range
-	*
-	* Returns: none
-	*
-	* Exceptions: None
-	*
-	***************************************************************************/
-	/*
-	public void SetHumidityRange(float lowhumi, float highhumi )
-	{
-		HumiRangeHigh = highhumi;
-		HumiRangeLow = lowhumi;
-		mw.WriteMessage( "***Humidity range changed to::" + HumiRangeLow + "% - " + HumiRangeHigh +"%***" );
-
-	} // SetTemperatureRange
-	*/
+	
 	/***************************************************************************
 	* CONCRETE METHOD:: Halt
 	* Purpose: This method posts an event that stops the environmental control
@@ -469,32 +361,32 @@ class SCSMonitor extends Thread
 	}
 
 	/***************************************************************************
-	* CONCRETE METHOD:: Heater
-	* Purpose: This method posts events that will signal the temperature
-	*		   controller to turn on/off the heater
+	* CONCRETE METHOD:: Door
+	* Purpose: This method posts events that will signal the Security
+	*		   controller to turn on/off the door alarm
 	*
-	* Arguments: boolean ON(true)/OFF(false) - indicates whether to turn the
-	*			 heater on or off.
+	* Arguments: boolean status ON(true)/OFF(false) - indicates whether to turn the
+	*			 door alarm  on or off.
 	*
 	* Returns: none
 	*
 	* Exceptions: Posting to event manager exception
 	*
 	***************************************************************************/
-/*
-	private void Heater( boolean ON )
+
+	public void Door( boolean status )
 	{
 		// Here we create the event.
 
 		Event evt;
 
-		if ( ON )
+		if ( status )
 		{
-			evt = new Event( (int) 5, "H1" );
+			evt = new Event( (int) 9, "D1" );
 
 		} else {
 
-			evt = new Event( (int) 5, "H0" );
+			evt = new Event( (int) 9, "D0" );
 
 		} // if
 
@@ -508,39 +400,39 @@ class SCSMonitor extends Thread
 
 		catch (Exception e)
 		{
-			System.out.println("Error sending heater control message:: " + e);
+			System.out.println("Error sending Door control message:: " + e);
 
 		} // catch
 
-	} // Heater
-*/
+	} // Door
+
 	/***************************************************************************
-	* CONCRETE METHOD:: Chiller
-	* Purpose: This method posts events that will signal the temperature
-	*		   controller to turn on/off the chiller
+	* CONCRETE METHOD:: Window
+	* Purpose: This method posts events that will signal the Security
+	*		   controller to turn on/off the window alarm
 	*
-	* Arguments: boolean ON(true)/OFF(false) - indicates whether to turn the
-	*			 chiller on or off.
+	* Arguments: boolean status ON(true)/OFF(false) - indicates whether to turn the
+	*			 window alarm  on or off.
 	*
 	* Returns: none
 	*
 	* Exceptions: Posting to event manager exception
 	*
 	***************************************************************************/
-/*
-	private void Chiller( boolean ON )
+
+	public void Window( boolean status )
 	{
 		// Here we create the event.
 
 		Event evt;
 
-		if ( ON )
+		if ( status )
 		{
-			evt = new Event( (int) 5, "C1" );
+			evt = new Event( (int) 10, "W1" );
 
 		} else {
 
-			evt = new Event( (int) 5, "C0" );
+			evt = new Event( (int) 10, "W0" );
 
 		} // if
 
@@ -558,35 +450,35 @@ class SCSMonitor extends Thread
 
 		} // catch
 
-	} // Chiller
-*/
+	} // Window
+
 	/***************************************************************************
-	* CONCRETE METHOD:: Humidifier
-	* Purpose: This method posts events that will signal the humidity
-	*		   controller to turn on/off the humidifier
+	* CONCRETE METHOD:: Motion
+	* Purpose: This method posts events that will signal the Security
+	*		   controller to turn on/off the motion alarm
 	*
-	* Arguments: boolean ON(true)/OFF(false) - indicates whether to turn the
-	*			 humidifier on or off.
+	* Arguments: boolean status ON(true)/OFF(false) - indicates whether to turn the
+	*			 motion alarm  on or off.
 	*
 	* Returns: none
 	*
 	* Exceptions: Posting to event manager exception
 	*
 	***************************************************************************/
-/*
-	private void Humidifier( boolean ON )
+
+	public void Motion( boolean status )
 	{
 		// Here we create the event.
 
 		Event evt;
 
-		if ( ON )
+		if ( status )
 		{
-			evt = new Event( (int) 4, "H1" );
+			evt = new Event( (int) 11, "M1" );
 
 		} else {
 
-			evt = new Event( (int) 4, "H0" );
+			evt = new Event( (int) 11, "M0" );
 
 		} // if
 
@@ -604,52 +496,6 @@ class SCSMonitor extends Thread
 
 		} // catch
 
-	} // Humidifier
-*/
-	/***************************************************************************
-	* CONCRETE METHOD:: Deumidifier
-	* Purpose: This method posts events that will signal the humidity
-	*		   controller to turn on/off the dehumidifier
-	*
-	* Arguments: boolean ON(true)/OFF(false) - indicates whether to turn the
-	*			 dehumidifier on or off.
-	*
-	* Returns: none
-	*
-	* Exceptions: Posting to event manager exception
-	*
-	***************************************************************************/
-/*
-	private void Dehumidifier( boolean ON )
-	{
-		// Here we create the event.
-
-		Event evt;
-
-		if ( ON )
-		{
-			evt = new Event( (int) 4, "D1" );
-
-		} else {
-
-			evt = new Event( (int) 4, "D0" );
-
-		} // if
-
-		// Here we send the event to the event manager.
-
-		try
-		{
-			em.SendEvent( evt );
-
-		} // try
-
-		catch (Exception e)
-		{
-			System.out.println("Error sending dehumidifier control message::  " + e);
-
-		} // catch
-
-	}*/ // Dehumidifier
+	} // Motion
 
 }// ECSMonitor

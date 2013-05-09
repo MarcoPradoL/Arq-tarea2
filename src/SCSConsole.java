@@ -80,6 +80,9 @@ public class SCSConsole
 				System.out.println( "Select an Option: \n" );
 				System.out.println( "1: Enable system" );
 				System.out.println( "2: Disable System" );
+				System.out.println( "3: Disable Door Alarm" );
+				System.out.println( "4: Disable Window Alarm" );
+				System.out.println( "5: Disable Motion Alarm" );
 				System.out.println( "X: Stop System\n" );
 				System.out.print( "\n>>>> " );
 				Option = UserInput.KeyboardReadString();
@@ -96,142 +99,25 @@ public class SCSConsole
 					Monitor.setSystemStatus(false);
 
 				}
-				
-				/*
-				if ( Option.equals( "1" ) )
+				//////////// option 3 ////////////
+				if ( Option.equals( "3" ) )
 				{
-					// Here we get the temperature ranges
+					Monitor.Door(false);
 
-					Error = true;
-
-					while (Error)
-					{
-						// Here we get the low temperature range
-
-						while (Error)
-						{
-							System.out.print( "\nEnter the low temperature>>> " );
-							Option = UserInput.KeyboardReadString();
-
-							if (UserInput.IsNumber(Option))
-							{
-								Error = false;
-								TempRangeLow = Float.valueOf(Option).floatValue();
-
-							} else {
-
-								System.out.println( "Not a number, please try again..." );
-
-							} // if
-
-						} // while
-
-						Error = true;
-
-						// Here we get the high temperature range
-
-						while (Error)
-						{
-							System.out.print( "\nEnter the high temperature>>> " );
-							Option = UserInput.KeyboardReadString();
-
-							if (UserInput.IsNumber(Option))
-							{
-								Error = false;
-								TempRangeHigh = Float.valueOf(Option).floatValue();
-
-							} else {
-
-								System.out.println( "Not a number, please try again..." );
-
-							} // if
-
-						} // while
-
-						if ( TempRangeLow >= TempRangeHigh )
-						{
-							System.out.println( "\nThe low temperature range must be less than the high temperature range..." );
-							System.out.println( "Please try again...\n" );
-							Error = true;
-
-						} else {
-
-							Monitor.SetTemperatureRange(TempRangeLow, TempRangeHigh );
-
-						} // if
-
-					} // while
-
-				} // if
-
-				//////////// option 2 ////////////
-
-				if ( Option.equals( "2" ) )
+				}
+				//////////// option 4 ////////////
+				if ( Option.equals( "4" ) )
 				{
-					// Here we get the humidity ranges
+					Monitor.Window(false);
 
-					Error = true;
+				}
+				//////////// option 5 ////////////
+				if ( Option.equals( "5" ) )
+				{
+					Monitor.Motion(false);
 
-					while (Error)
-					{
-						// Here we get the low humidity range
-
-						while (Error)
-						{
-							System.out.print( "\nEnter the low humidity>>> " );
-							Option = UserInput.KeyboardReadString();
-
-							if (UserInput.IsNumber(Option))
-							{
-								Error = false;
-								HumiRangeLow = Float.valueOf(Option).floatValue();
-
-							} else {
-
-								System.out.println( "Not a number, please try again..." );
-
-							} // if
-
-						} // while
-
-						Error = true;
-
-						// Here we get the high humidity range
-
-						while (Error)
-						{
-							System.out.print( "\nEnter the high humidity>>>  " );
-							Option = UserInput.KeyboardReadString();
-
-							if (UserInput.IsNumber(Option))
-							{
-								Error = false;
-								HumiRangeHigh = Float.valueOf(Option).floatValue();
-
-							} else {
-
-								System.out.println( "Not a number, please try again..." );
-
-							} // if
-
-						} // while
-
-						if ( HumiRangeLow >= HumiRangeHigh )
-						{
-							System.out.println( "\nThe low humidity range must be less than the high humidity range..." );
-							System.out.println( "Please try again...\n" );
-							Error = true;
-
-						} else {
-
-							Monitor.SetHumidityRange(HumiRangeLow, HumiRangeHigh );
-
-						} // if
-
-					} // while
-
-				} // if
-				*/
+				}
+			
 				//////////// option X ////////////
 
 				if ( Option.equalsIgnoreCase( "X" ) )

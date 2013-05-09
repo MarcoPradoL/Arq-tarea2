@@ -107,9 +107,9 @@ class SecurityController
 			** of the terminal. The status indicators are placed directly under this panel
 			*/
 
-			float WinPosX = 0.0f; 	//This is the X position of the message window in terms 
+			float WinPosX = 0.5f; 	//This is the X position of the message window in terms 
 									//of a percentage of the screen height
-			float WinPosY = 0.60f;	//This is the Y position of the message window in terms 
+			float WinPosY = 0.25f;	//This is the Y position of the message window in terms 
 								 	//of a percentage of the screen height 
 			
 			MessageWindow mw = new MessageWindow("Security Controller Status Console", WinPosX, WinPosY);
@@ -166,7 +166,7 @@ class SecurityController
 				{
 					Evt = eq.GetEvent();
 
-					if ( Evt.GetEventId() == 6 )	//door event
+					if ( Evt.GetEventId() == 9 )	//door event
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("D1")) // alarm on
 						{
@@ -175,7 +175,7 @@ class SecurityController
 
 							// Confirm that the message was recieved and acted on
 
-							ConfirmMessage( em, "D1" );
+							ConfirmMessage( em, "D1", -9 );
 
 						} // if
 
@@ -186,13 +186,13 @@ class SecurityController
 
 							// Confirm that the message was recieved and acted on
 
-							ConfirmMessage( em, "D0" );
+							ConfirmMessage( em, "D0" , -9);
 
 						} // if
 
 					} // if
 					
-					if ( Evt.GetEventId() == 7 )	//window event
+					if ( Evt.GetEventId() == 10 )	//window event
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("W1")) // alarm on
 						{
@@ -201,7 +201,7 @@ class SecurityController
 
 							// Confirm that the message was recieved and acted on
 
-							ConfirmMessage( em, "W1" );
+							ConfirmMessage( em, "W1" , -10);
 
 						} // if
 
@@ -212,13 +212,13 @@ class SecurityController
 
 							// Confirm that the message was recieved and acted on
 
-							ConfirmMessage( em, "W0" );
+							ConfirmMessage( em, "W0", -10 );
 
 						} // if
 
 					} // if
 					
-					if ( Evt.GetEventId() == 8 )	//Motion event
+					if ( Evt.GetEventId() == 11 )	//Motion event
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("M1")) // alarm on
 						{
@@ -227,7 +227,7 @@ class SecurityController
 
 							// Confirm that the message was recieved and acted on
 
-							ConfirmMessage( em, "M1" );
+							ConfirmMessage( em, "M1" , -11);
 
 						} // if
 
@@ -238,7 +238,7 @@ class SecurityController
 
 							// Confirm that the message was recieved and acted on
 
-							ConfirmMessage( em, "M0" );
+							ConfirmMessage( em, "M0" , -11 );
 
 						} // if
 
@@ -269,7 +269,6 @@ class SecurityController
 					} // if
 
 				} // for
-
 				
 				try
 				{
@@ -303,6 +302,7 @@ class SecurityController
 	*			 where the event will be posted.
 	*
 	*			 string m - this is the received command.
+	*			 int id -	es el id que generara el evento 
 	*
 	* Returns: none
 	*
@@ -310,11 +310,11 @@ class SecurityController
 	*
 	***************************************************************************/
 
-	static private void ConfirmMessage(EventManagerInterface ei, String m )
+	static private void ConfirmMessage(EventManagerInterface ei, String m, int id )
 	{
 		// Here we create the event.
 
-		Event evt = new Event( (int) -4, m );
+		Event evt = new Event( (int) id, m );
 
 		// Here we send the event to the event manager.
 
@@ -330,6 +330,6 @@ class SecurityController
 
 		} // catch
 
-	} // PostMessage
+	} // ConfirmMessage
 
-} // HumidityControllers
+} // SecurityControllers

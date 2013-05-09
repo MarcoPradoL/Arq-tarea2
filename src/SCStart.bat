@@ -3,6 +3,8 @@
 PAUSE
 %ECHO SCS Monitoring Console
 START "MUSEUM SECURITY CONTROL SYSTEM CONSOLE" /NORMAL java SCSConsole %1
+%ECHO Starting Secutiry Controller Console
+START "SECURIRY CONTROLLER CONSOLE" /MIN /NORMAL java SecurityController %1
 %ECHO Starting Door Sensor Console
 START "DOOR SENSOR CONSOLE" /MIN /NORMAL java DoorSensor %1
 %ECHO Starting Window Sensor Console

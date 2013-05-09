@@ -32,9 +32,12 @@ class MotionSensor
 		EventQueue eq = null;				// Message Queue
 		int EvtId = 0;						// User specified event ID
 		EventManagerInterface em = null;	// Interface object to the event manager
-		boolean motionState = false;			// estado del sensor de puerta
+		boolean motionState = false;		// estado del sensor de puerta
+		boolean eventStatus = false;		// determinar si hay algun evento  
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
+		int max = 15000;					// maximo  tiempo que duerme el hilo 
+		int min = 2501;						// minimo tiempo que duerme el hilo
 
 
 		
@@ -169,17 +172,19 @@ class MotionSensor
 				{
 					Evt = eq.GetEvent();
 					
-					if ( Evt.GetEventId() == -8 )
+					if ( Evt.GetEventId() == -11 )
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("M1")) // alarm on
 						{
 							motionState = true;
+							eventStatus = true;
 
 						} // if
 
 						if (Evt.GetMessage().equalsIgnoreCase("M0")) // alarm off
 						{
 							motionState = false;
+							eventStatus = true;
 
 						} // if
 
@@ -191,7 +196,7 @@ class MotionSensor
 					if ( Evt.GetEventId() == 100 )
 					{
 						Done = true;
-
+						eventStatus = true;
 						try
 						{
 							em.UnRegister();
@@ -215,10 +220,10 @@ class MotionSensor
 				 * a estado true (DETECTED), para simular la deteccion de movimiento.
 				 */
 				
-				if (!motionState) {
-					motionState = true;
+				if (!motionState && !eventStatus) {
+					motionState = true;	
 				}
-
+				
 				// Here we wait for a 2.5 seconds before we start the next sample
 
 				try
@@ -232,6 +237,16 @@ class MotionSensor
 					mw.WriteMessage("Sleep error:: " + e );
 
 				} // catch
+				
+				// aqui se determina si hay algun evento para crea
+				// el tiempo que dormira el hilo aleatoreamente
+				
+				if (!eventStatus) {
+					Delay = 2500;
+				}else {
+					Delay = (int)(Math.random()*(max-min))+min;			
+					eventStatus = false;
+				}
 
 			} // while
 
