@@ -131,7 +131,7 @@ public class SCSConsole
 
 					Monitor.Halt();
 					Done = true;
-					System.out.println( "\nConsole Stopped... Exit monitor mindow to return to command prompt." );
+					System.out.println( "\nConsole Stopped... Exit Security Monitor  to return to command prompt." );
 					Monitor.Halt();
 
 				} // if
