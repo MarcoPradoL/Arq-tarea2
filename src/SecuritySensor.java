@@ -28,6 +28,7 @@ class SecuritySensor
 	private static boolean windowState = false;			// estado del sensor de ventana
 	private	static boolean doorState = false;			// estado del sensor de puerta
 	private static boolean motionState = false;			// estado del sensor del detector de movimiento
+	private static boolean fireState = false;			// estado del sensor del detector de incendios
 		
 	public static void main(String args[])
 	{
@@ -35,8 +36,7 @@ class SecuritySensor
 		Event Evt = null;					// Event object
 		EventQueue eq = null;				// Message Queue
 		int EvtId = 0;						// User specified event ID
-		EventManagerInterface em = null;	// Interface object to the event manager
-		boolean eventStatus = false;		// determinar si hay algun evento  
+		EventManagerInterface em = null;	// Interface object to the event manager 
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
 		int max = 15000;					// maximo  tiempo que duerme el hilo 
@@ -126,7 +126,8 @@ class SecuritySensor
 			mw.WriteMessage("\nInitializing Security Simulation::" );
 			mw.WriteMessage("   Initial Window state Set:: " + windowState );
 			mw.WriteMessage("   Initial Door state Set:: " + doorState );
-			mw.WriteMessage("   Initial Mortion state Set:: " + motionState );
+			mw.WriteMessage("   Initial Motion state Set:: " + motionState );
+			mw.WriteMessage("   Initial Fire state Set:: " + fireState );
 
 			/********************************************************************
 			** Here we start the main simulation loop
@@ -143,9 +144,12 @@ class SecuritySensor
 				PostState( em, doorState, 6);
 				PostState( em, windowState, 7 );
 				PostState( em, motionState, 8);
+				PostState( em, fireState, 12);
 				mw.WriteMessage("Current Door state:: " + (doorState ? "BROKEN": "OK") + 
 						" Current Window state:: " + (windowState ? "BROKEN": "OK" ) + 
-						" Current Motion state:: " + (motionState ? "DETECTED": "OK"));
+						" Current Motion state:: " + (motionState ? "DETECTED": "OK") + 
+						" Current Fire state:: " + (fireState ? "DETECTED": "OK"));
+				
 
 
 				try
@@ -186,14 +190,12 @@ class SecuritySensor
 						if (Evt.GetMessage().equalsIgnoreCase("D1")) // Alarm on
 						{
 							doorState = true;
-							eventStatus = true;
 
 						} // if
 
 						if (Evt.GetMessage().equalsIgnoreCase("D0")) // Alarm off
 						{
 							doorState = false;
-							eventStatus = true;
 
 						} // if
 
@@ -228,6 +230,19 @@ class SecuritySensor
 
 					} // if
 					
+					if ( Evt.GetEventId() == -13 )
+					{
+						if (Evt.GetMessage().equalsIgnoreCase("F1")) // alarm on
+						{
+							fireState = true;
+						} // if
+
+						if (Evt.GetMessage().equalsIgnoreCase("F0")) // alarm off
+						{
+							fireState = false;
+						} // if
+
+					} // if
 					// If the event ID == 100 then this is a signal that the simulation
 					// is to end. At this point, the loop termination flag is set to
 					// true and this process unregisters from the event manager.
@@ -301,6 +316,7 @@ class SecuritySensor
 					System.out.println( "1: Door Security Event" );
 					System.out.println( "2: Window Secutity Event" );
 					System.out.println( "3: Motion Secutity Event" );
+					System.out.println( "4: Fire Secutity Event" );
 					System.out.print( "\n>>>> " );
 					Option = UserInput.KeyboardReadString();
 		
@@ -318,6 +334,10 @@ class SecuritySensor
 					if ( Option.equals( "3" ) )
 					{
 						motionState = true;
+					}
+					if ( Option.equals( "4" ) )
+					{
+						fireState = true;
 					}
 					
 				} // while

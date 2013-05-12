@@ -83,6 +83,8 @@ public class SCSConsole
 				System.out.println( "3: Disable Door Alarm" );
 				System.out.println( "4: Disable Window Alarm" );
 				System.out.println( "5: Disable Motion Alarm" );
+				System.out.println( "6: Disable Fire Alarm" );
+				System.out.println( "7: OFF Sprinkler" );
 				System.out.println( "X: Stop System\n" );
 				System.out.print( "\n>>>> " );
 				Option = UserInput.KeyboardReadString();
@@ -115,6 +117,18 @@ public class SCSConsole
 				if ( Option.equals( "5" ) )
 				{
 					Monitor.Motion(false);
+
+				}
+				//////////// option 5 ////////////
+				if ( Option.equals( "6" ) )
+				{
+					Monitor.Fire(false);
+
+				}
+				//////////// option 5 ////////////
+				if ( Option.equals( "7" ) )
+				{
+					Monitor.Sprinkler(false);
 
 				}
 			

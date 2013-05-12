@@ -17,6 +17,7 @@ Codigos de Accion:
 
 "yyy" si id=7 entonces la cadena de texto "yyy" contiene el valor, en texto de false o true de  ventana rota
 "zzz" si id=8 entonces la cadena de texto "zzz" contiene el valor, en texto de false o true de  deteccion de movimiento
+"zzz" si id=12 entonces la cadena de texto "www" contiene el valor, en texto de false o true de  deteccion de Fuego
 
 los eventos con ID 100 terminban la ejecucion.
 
@@ -44,8 +45,8 @@ Codigos de accion
 
 Opcion 2
 Security Sensor: 
-Envia eventos ID 6,7 y 8
-responde a eventos ID -9, -10, -11 0 100
+Envia eventos ID 6,7 y 8 , 12
+responde a eventos ID -9, -10, -11 , -13, 100
 Codigos de accion 
 similar a los de los sensores de la opcion 1
 
@@ -55,6 +56,25 @@ Envia eventos ID -9, -10, -11
 responde a eventos ID 9, 10, 11
 
 Monior de seguridad:
-Envia eventos ID 9, 10, 11
+Envia eventos ID 9, 10, 11, 14
 responde a eventos ID 6, 7, 8
+
+Fire Controller: 
+Envia eventos ID  -13
+responde a eventos ID 13, 100
+
+Codigos de accion para manipular  alarma de incendios 
+"F1" Confirmacion de encendido de alarma del detector de fuego
+"F0" Confirmacion de apagado de alarma del detector de fuego
+
+Sprinkler Controller: 
+Envia eventos ID 
+responde a eventos ID 14, 100
+
+Codigos de accion para manipular los rociadores
+"S1" Confirmacion de encendido de rociadores
+"S0" Confirmacion de apagado de rociadores
+
+
+
 

@@ -24,8 +24,11 @@
 *
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
+import TermioPackage.Termio;
 import EventPackage.*;
 import java.util.*;
+
+import javax.swing.JOptionPane;
 
 class SCSMonitor extends Thread
 {
@@ -37,7 +40,9 @@ class SCSMonitor extends Thread
 	Indicator	pri;						// Indicador de Puerta rota
 	Indicator	vri;						// Indicador de Ventana rota
 	Indicator	dmi;						// indicador de Deteccion de movimiento
-
+	Indicator	dfi;						// indicador de Deteccion de fuego
+	boolean ON = true;				// Used to turn on sprinkler
+	boolean OFF = false;				// Used to turn off sprinkler
 	public SCSMonitor()
 	{
 		// event manager is on the local system
@@ -91,8 +96,11 @@ class SCSMonitor extends Thread
 		boolean statusPuertaRota = false;	// actual estado del sensor de Puertas rotas.
 		boolean statusVentanaRota = false; 	// actual estado del sensor de ventanas rotas
 		boolean statusMovimiento = false; 	// actual estado del sensor de Deteccion de movimiento 
+		boolean statusFuego = false; 	// actual estado del sensor de Deteccion de fuego 
 		int	Delay = 1000;				// The loop delay (1 second)
 		boolean Done = false;			// Loop termination flag
+		boolean ON = true;				// Used to turn on sprinkler
+
 
 		if (em != null)
 		{
@@ -106,9 +114,8 @@ class SCSMonitor extends Thread
 			pri = new Indicator("DOOR UNK",mw.GetX()+ mw.Width(), 0);
 			vri = new Indicator("WINDOW UNK", mw.GetX()+ mw.Width(), (int)(mw.Height()/2), 2);
 			dmi =  new Indicator("MOTION UNK", mw.GetX()+ mw.Width() + pri.Width()+(pri.Width()/2), 0 , 2);
-			/*ti = new Indicator ("TEMP UNK", mw.GetX()+ mw.Width(), 0);
-			hi = new Indicator ("HUMI UNK", mw.GetX()+ mw.Width(), (int)(mw.Height()/2), 2 );
-			 */
+			dfi =  new Indicator("FIRE UNK", mw.GetX()+ mw.Width() + vri.Width()+(vri.Width()/2), 0 , 2);
+		
 			mw.WriteMessage( "Registered with the event manager." );
 
 	    	try
@@ -208,6 +215,23 @@ class SCSMonitor extends Thread
 						} // catch
 
 					} // if
+					
+					if ( Evt.GetEventId() == 12 ) // leyendo dato de deteccion de fuego
+					{
+						try
+						{
+				
+							statusFuego = Boolean.parseBoolean(Evt.GetMessage());
+
+						} // try
+
+						catch( Exception e )
+						{
+							mw.WriteMessage("Error reading Fire: " + e);
+
+						} // catch
+
+					} // if
 
 
 					// If the event ID == 100 then this is a signal that the simulation
@@ -238,14 +262,17 @@ class SCSMonitor extends Thread
 						pri.dispose();
 						vri.dispose();
 						dmi.dispose();
+						dfi.dispose();
 
 					} // if
 
 				} // for
+				
 				if (systemStatus) {
 					mw.WriteMessage("DOOR:: " + (statusPuertaRota ? "BROKEN": "OK") + " WINDOW:: " + 
 							(statusVentanaRota ? "BROKEN": "OK") + " MOTION:: " + 
-							(statusMovimiento ? "DETECTED": "OK"));
+							(statusMovimiento ? "DETECTED": "OK") + " FIRE:: " + 
+									(statusFuego ? "DETECTED": "OK"));
 					
 					// checar las alarmas y su estatus
 					if (statusPuertaRota) {
@@ -263,14 +290,26 @@ class SCSMonitor extends Thread
 					}else {
 						dmi.SetLampColorAndMessage("MOTION OK", 1);
 					}
+					if (statusFuego) {
+						dfi.SetLampColorAndMessage("FIRE DETECTED", 2);
+					}else {
+						dfi.SetLampColorAndMessage("FIRE OK", 1);
+					}
 				}else {
-					mw.WriteMessage("DOOR:: UNK WINDOW:: UNK MOTION:: UNK");
+					mw.WriteMessage("DOOR:: UNK WINDOW:: UNK MOTION:: UNK FIRE:: UNK");
 					pri.SetLampColorAndMessage("DOOR UNK", 0);
 					vri.SetLampColorAndMessage("WINDOW UNK", 0);
 					dmi.SetLampColorAndMessage("MOTION UNK", 0);
+					dmi.SetLampColorAndMessage("FIRE UNK", 0);
 				}
 				
 				// This delay slows down the sample rate to Delay milliseconds
+				
+				// checamos si  se ha detectado fuego para encender los rociadores
+				
+				if (statusFuego) {
+					Sprinkler(ON);
+				}
 
 				try
 				{
@@ -293,6 +332,8 @@ class SCSMonitor extends Thread
 		} // if
 
 	} // main
+
+	
 
 	/***************************************************************************
 	* CONCRETE METHOD:: IsRegistered
@@ -446,7 +487,7 @@ class SCSMonitor extends Thread
 
 		catch (Exception e)
 		{
-			System.out.println("Error sending chiller control message:: " + e);
+			System.out.println("Error sending Window control message:: " + e);
 
 		} // catch
 
@@ -492,7 +533,71 @@ class SCSMonitor extends Thread
 
 		catch (Exception e)
 		{
-			System.out.println("Error sending humidifier control message::  " + e);
+			System.out.println("Error sending Motion control message::  " + e);
+
+		} // catch
+
+	} // Motion
+	
+	public void Sprinkler( boolean status )
+	{
+		// Here we create the event.
+
+		Event evt;
+
+		if ( status )
+		{
+			evt = new Event( (int) 14, "S1" );
+
+		} else {
+
+			evt = new Event( (int) 14, "S0" );
+
+		} // if
+
+		// Here we send the event to the event manager.
+
+		try
+		{
+			em.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println("Error sending sprinkler control message::  " + e);
+
+		} // catch
+
+	} // Sprinkler
+	
+	public void Fire( boolean status )
+	{
+		// Here we create the event.
+
+		Event evt;
+
+		if ( status )
+		{
+			evt = new Event( (int) 13, "F1" );
+
+		} else {
+
+			evt = new Event( (int) 13, "F0" );
+
+		} // if
+
+		// Here we send the event to the event manager.
+
+		try
+		{
+			em.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println("Error sending Fire control message::  " + e);
 
 		} // catch
 
