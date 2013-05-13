@@ -30,6 +30,7 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import EventPackage.*;
+
 import java.util.*;
 
 class SecurityController
@@ -46,6 +47,7 @@ class SecurityController
 		boolean movimiento = false;			//									
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
+		String mensaje= null;				// almacena la informacion de nombre y descripcion del dispositivo
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Get the IP address of the event manager
@@ -140,6 +142,8 @@ class SecurityController
 
 			while ( !Done )
 			{
+				
+				heartbeat(em);
 				try
 				{
 					eq = em.GetEventQueue();
@@ -243,6 +247,19 @@ class SecurityController
 						} // if
 
 					} // if
+					
+					if ( Evt.GetEventId() == 22 )
+					{
+						try {
+							mensaje = String.valueOf(em.GetMyId())+ "---Nombre: Security Controller---"+
+									"Descripcion: Este Controlador es utilizado para cambiar el estado del sensor de Puerta rota "+
+									"ventana rota, deteccion de movimiento y deteccion de fuego";
+						} catch (Exception e) {
+							mw.WriteMessage("Error:: " + e);
+						}
+						datosMantenimiento(em,mensaje);
+
+					} // if
 
 					// If the event ID == 100 then this is a signal that the simulation
 					// is to end. At this point, the loop termination flag is set to
@@ -331,5 +348,39 @@ class SecurityController
 		} // catch
 
 	} // ConfirmMessage
+	
+	private static void heartbeat(EventManagerInterface ei){
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 20, String.valueOf(ei.GetMyId()) );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
+
+	private static void datosMantenimiento(EventManagerInterface ei, String mensaje) {
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 21, mensaje );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
 
 } // SecurityControllers

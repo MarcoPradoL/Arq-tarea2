@@ -30,6 +30,7 @@
 ******************************************************************************************************************/
 import InstrumentationPackage.*;
 import EventPackage.*;
+
 import java.util.*;
 
 class FireController
@@ -44,6 +45,7 @@ class FireController
 		boolean fuego = false;				// Estado de la alarma de fuego								
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
+		String mensaje= null;				// almacena la informacion de nombre y descripcion del dispositivo
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// Get the IP address of the event manager
@@ -138,6 +140,8 @@ class FireController
 
 			while ( !Done )
 			{
+				
+				heartbeat(em);
 				try
 				{
 					eq = em.GetEventQueue();
@@ -187,6 +191,18 @@ class FireController
 							ConfirmMessage( em, "F0" , -13 );
 
 						} // if
+
+					} // if
+					
+					if ( Evt.GetEventId() == 22 )
+					{
+						try {
+							mensaje = String.valueOf(em.GetMyId())+ "---Nombre: Fire Controller---"+
+									"Descripcion: Este Controlador es utilizado para apagar o prender el sensor de fuego ";
+						} catch (Exception e) {
+							mw.WriteMessage("Error:: " + e);
+						}
+						datosMantenimiento(em,mensaje);
 
 					} // if
 
@@ -277,5 +293,39 @@ class FireController
 		} // catch
 
 	} // ConfirmMessage
+	
+	private static void heartbeat(EventManagerInterface ei){
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 20, String.valueOf(ei.GetMyId()) );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
+
+	private static void datosMantenimiento(EventManagerInterface ei, String mensaje) {
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 21, mensaje );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
 
 } // SecurityControllers

@@ -21,6 +21,8 @@
 import InstrumentationPackage.*;
 import TermioPackage.Termio;
 import EventPackage.*;
+import EventPackage.EventManagerInterface;
+
 import java.util.*;
 
 class SecuritySensor
@@ -39,8 +41,7 @@ class SecuritySensor
 		EventManagerInterface em = null;	// Interface object to the event manager 
 		int	Delay = 2500;					// The loop delay (2.5 seconds)
 		boolean Done = false;				// Loop termination flag
-		int max = 15000;					// maximo  tiempo que duerme el hilo 
-		int min = 2501;						// minimo tiempo que duerme el hilo
+		String mensaje= null;				// almacena la informacion de nombre y descripcion del dispositivo
 
 
 		
@@ -140,7 +141,7 @@ class SecuritySensor
 			{
 				
 				// colocamos el estado actual del sensor de seguridad
-				
+				heartbeat(em);
 				PostState( em, doorState, 6);
 				PostState( em, windowState, 7 );
 				PostState( em, motionState, 8);
@@ -241,6 +242,19 @@ class SecuritySensor
 						{
 							fireState = false;
 						} // if
+
+					} // if
+					
+					if ( Evt.GetEventId() == 22 )
+					{
+						try {
+							mensaje = String.valueOf(em.GetMyId())+ "---Nombre: Security Sensor---"+
+									"Descripcion: Este sensor es utilizado para simular alarmas de Puerta rota "+
+									"ventana rota, deteccion de movimiento y deteccion de fuego";
+						} catch (Exception e) {
+							mw.WriteMessage("Error:: " + e);
+						}
+						datosMantenimiento(em,mensaje);
 
 					} // if
 					// If the event ID == 100 then this is a signal that the simulation
@@ -385,4 +399,37 @@ class SecuritySensor
 
 	} // PostWindowState
 
+	private static void heartbeat(EventManagerInterface ei){
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 20, String.valueOf(ei.GetMyId()) );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
+
+	private static void datosMantenimiento(EventManagerInterface ei, String mensaje) {
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 21, mensaje );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
 } // Window Sensor

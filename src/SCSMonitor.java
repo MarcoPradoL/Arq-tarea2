@@ -26,6 +26,7 @@
 import InstrumentationPackage.*;
 import TermioPackage.Termio;
 import EventPackage.*;
+
 import java.util.*;
 
 import javax.swing.JOptionPane;
@@ -43,6 +44,8 @@ class SCSMonitor extends Thread
 	Indicator	dfi;						// indicador de Deteccion de fuego
 	boolean ON = true;				// Used to turn on sprinkler
 	boolean OFF = false;				// Used to turn off sprinkler
+	private String mensaje= null;				// almacena la informacion de nombre y descripcion del dispositivo
+	
 	public SCSMonitor()
 	{
 		// event manager is on the local system
@@ -137,6 +140,8 @@ class SCSMonitor extends Thread
 
 			while ( !Done )
 			{
+				
+				heartbeat(em);
 				// Here we get our event queue from the event manager
 
 				try
@@ -232,6 +237,18 @@ class SCSMonitor extends Thread
 						} // catch
 
 					} // if
+					
+					if ( Evt.GetEventId() == 22 )
+					{
+						try {
+							mensaje = String.valueOf(em.GetMyId())+ "---Nombre: Security Monitor---"+
+									"Descripcion: monitor que reporta el estado de los sensores de seguridad";
+						} catch (Exception e) {
+							mw.WriteMessage("Error:: " + e);
+						}
+						datosMantenimiento(em,mensaje);
+
+					}
 
 
 					// If the event ID == 100 then this is a signal that the simulation
@@ -602,5 +619,39 @@ class SCSMonitor extends Thread
 		} // catch
 
 	} // Motion
+	
+	private static void heartbeat(EventManagerInterface ei){
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 20, String.valueOf(ei.GetMyId()) );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
+
+	private static void datosMantenimiento(EventManagerInterface ei, String mensaje) {
+		// Here we send the event to the event manager.
+
+		try
+		{
+			Event evt = new Event( (int) 21, mensaje );
+			ei.SendEvent( evt );
+
+		} // try
+
+		catch (Exception e)
+		{
+			System.out.println( "Error Posting Heartbeat event:: " + e );
+
+		} // catch
+	}
 
 }// ECSMonitor

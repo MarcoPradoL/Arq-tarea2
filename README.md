@@ -1,3 +1,6 @@
+Arq-tarea2
+==========
+
 Ejecutar Sistema A
 Abrir una ventana de comandos
 posicionarse sobre la carpeta scr
@@ -8,8 +11,7 @@ Ejecutar archivo SCStart.bat
 opcion 2: 
 Ejecutar archivo SCStart2.bat
 
-Arq-tarea2
-==========
+
 SCSConsole: responde a eventoscon ID 6,7 y 8
 Codigos de Accion:
 
@@ -56,7 +58,7 @@ Envia eventos ID -9, -10, -11
 responde a eventos ID 9, 10, 11
 
 Monior de seguridad:
-Envia eventos ID 9, 10, 11, 14
+Envia eventos ID 9, 10, 11, 14, 13
 responde a eventos ID 6, 7, 8
 
 Fire Controller: 
@@ -75,6 +77,15 @@ Codigos de accion para manipular los rociadores
 "S1" Confirmacion de encendido de rociadores
 "S0" Confirmacion de apagado de rociadores
 
+
+MCSConsole: responde a eventos con ID 20,21
+Envia eventos ID 22
+responde a eventos 20, 21
+Codigos de Accion:
+
+"xxx" si id=20 entonces la cadena de texto "xxx" contiene el valor, en texto el numero de participante que envia el latido
+
+"yyy" si id=21 entonces la cadena de texto "yyy" contiene el valor, en texto el numero del participante, el nombre y una breve descripcion
 
 
 
