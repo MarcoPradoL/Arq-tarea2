@@ -31,17 +31,19 @@
 import InstrumentationPackage.*;
 import EventPackage.*;
 
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.awt.event.KeyEvent;
 import java.util.*;
 
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
 
 class SprinklerController
 {
+	private static JOptionPane frame = new JOptionPane("Encender Rociadores");
+	private static JLabel lblMensaje = new JLabel("Fuego detectado: los rociadores encendaran en 15 segundos");
+	private static JDialog dialogo = null;
 	
-
 	public static void main(String args[])
 	{
 		String EvtMgrIP;					// Event Manager IP address
@@ -285,43 +287,41 @@ class SprinklerController
 
 	} // main
 
-	@SuppressWarnings("static-access")
 	static private  boolean  confirmSprinkler() {
-		//boolean confirm = true;				// Used to turn on sprinkler
-		int  confirm= 0;
+		frame.setMessage(lblMensaje);
+		frame.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+		if ( null == dialogo )
+        {
+            dialogo = frame.createDialog(null, "Encender los Rociadores");
+        }
+        else
+        {
+            dialogo.setTitle("Encender los Rociadores");
+        }
 		isRun();
-		confirm = JOptionPane.showConfirmDialog(null, 
-				"Fuego detectado: los rociadores encendaran en 15 segundos",
-				"Encender Rociadores",JOptionPane.OK_CANCEL_OPTION);
-		System.out.println("el valor de esta cosa es: " + confirm);
-		if (confirm == 0) {
+		dialogo.setVisible(true);
+		if ((int)frame.getValue() == JOptionPane.OK_OPTION) {
+			
 			return true;
 		}
 		return false;
 		
 	}
 
+	
 	private static void isRun() {
 		TimerTask task;
-		Timer tiempo = new Timer();
+		final Timer tiempo = new Timer();
 		task= new TimerTask() {
 			int contador=0;
 			public void run() {
-				contador++;
+				lblMensaje.setText("Fuego detectado: los rociadores encendaran en "+ (15-contador) +" segundos");
 				if(contador == 15){
-					// System.out.println("Se acabo el tiempo, mala suerte");
-					Robot robot;
-					try {
-						
-						robot = new Robot();
-						robot.keyPress(KeyEvent.VK_ENTER);
-					} catch (AWTException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					//se presiona la tecla escape
-					
-				}
+					frame.setValue(JOptionPane.OK_OPTION);
+					dialogo.setVisible(false);
+					tiempo.cancel();
+			}
+				contador++;
 			} 
 		}; 
 		tiempo.schedule(task,0,1000); 
