@@ -295,21 +295,23 @@ class SCSMonitor extends Thread
 					}else {
 						dfi.SetLampColorAndMessage("FIRE OK", 1);
 					}
+					
+					// checamos si  se ha detectado fuego para encender los rociadores
+					
+					if (statusFuego) {
+						Sprinkler(ON);
+					}
 				}else {
 					mw.WriteMessage("DOOR:: UNK WINDOW:: UNK MOTION:: UNK FIRE:: UNK");
 					pri.SetLampColorAndMessage("DOOR UNK", 0);
 					vri.SetLampColorAndMessage("WINDOW UNK", 0);
 					dmi.SetLampColorAndMessage("MOTION UNK", 0);
-					dmi.SetLampColorAndMessage("FIRE UNK", 0);
+					dfi.SetLampColorAndMessage("FIRE UNK", 0);
 				}
 				
 				// This delay slows down the sample rate to Delay milliseconds
 				
-				// checamos si  se ha detectado fuego para encender los rociadores
-				
-				if (statusFuego) {
-					Sprinkler(ON);
-				}
+
 
 				try
 				{

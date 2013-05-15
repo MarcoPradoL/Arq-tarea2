@@ -170,7 +170,7 @@ class SprinklerController
 				// output of the humidity as it would in reality.
 
 				int qlen = eq.GetSize();
-				System.out.println("longitud de cola : " + qlen);
+				//System.out.println("longitud de cola : " + qlen);
 				for ( int i = 0; i < qlen; i++ )
 				{
 					Evt = eq.GetEvent();
@@ -179,16 +179,16 @@ class SprinklerController
 				
 						if(statusFuego == Boolean.parseBoolean(Evt.GetMessage())){
 							nuevoEvento= false;
-							System.out.println("no es nuevo even");
+							//System.out.println("no es nuevo even");
 						}
 						else{
 							nuevoEvento= true;
 							statusFuego = Boolean.parseBoolean(Evt.GetMessage());
-							System.out.println("es un nuevo evento");
+							//System.out.println("es un nuevo evento");
 						}
 
 					} // if
-					System.out.println("el valor de esta cosa es: " + Evt.GetEventId());
+					//System.out.println("el valor de esta cosa es: " + Evt.GetEventId());
 					if ( Evt.GetEventId() == 14 )	//fire event
 					{
 						if (Evt.GetMessage().equalsIgnoreCase("S1") && !Sprinkler && nuevoEvento) // Sprinkler on
@@ -198,7 +198,7 @@ class SprinklerController
 
 							//preguntar si se desea encender o cancelar los rociadores
 							Sprinkler = confirmSprinkler();
-							System.out.println("el valor de esta cosa es: " + Sprinkler);
+							//System.out.println("el valor de esta cosa es: " + Sprinkler);
 							
 							nuevoEvento=false;
 							// Confirm that the message was recieved and acted on
